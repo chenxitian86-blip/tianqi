@@ -5,7 +5,7 @@ import requests
 
 st.title("天气提醒小助手")
 
-city_input = st.text_input("请输入城市名称目前仅支持东莞"), "东莞")
+city_input = st.text_input("请输入城市名称(目前仅支持东莞)", "东莞")
 
 if st.button("生成提醒文案"):
     llm = LLM(model="deepseek/deepseek-chat", api_key="sk-e17f9a5ba4c24e6ba996f168e1089155")
