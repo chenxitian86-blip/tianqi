@@ -9,7 +9,7 @@ st.title("天气提醒小助手")
 city_input = st.text_input("请输入城市名称", "上海")
 
 if st.button("生成提醒文案"):
-    llm = LLM(model="deepseek/deepseek-chat", api_key="你的key")
+    llm = LLM(model="deepseek/deepseek-chat", api_key="sk-928f84c158094119b8c7e1d50d0c2f51")
 
     @tool("get_weather_tool")
     def get_weather(city: str) -> str:
