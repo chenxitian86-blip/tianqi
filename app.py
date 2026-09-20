@@ -1,21 +1,32 @@
 import streamlit as st
+import streamlit as st
 from crewai import Agent, Task, Crew, LLM
 from crewai.tools import tool
 import requests
 
 st.title("天气提醒小助手")
 
-city_input = st.text_input("请输入城市名称(目前仅支持东莞)", "东莞")
+city_input = st.text_input("请输入城市名称", "上海")
 
 if st.button("生成提醒文案"):
-    llm = LLM(model="deepseek/deepseek-chat", api_key="sk-e17f9a5ba4c24e6ba996f168e1089155")
+    llm = LLM(model="deepseek/deepseek-chat", api_key="你的key")
 
     @tool("get_weather_tool")
     def get_weather(city: str) -> str:
-        """查询实时气温"""
-        response = requests.get("https://api.open-meteo.com/v1/forecast?latitude=31.23&longitude=121.47&current=temperature_2m")
-        data = response.json()
-        temp = data["current"]["temperature_2m"]
+        """根据城市名称,查询该城市当前的实时气温"""
+        geo_response = requests.get(f"https://geocoding-api.open-meteo.com/v1/search?name={city}&count=1&language=zh")
+        geo_data = geo_response.json()
+
+        if "results" not in geo_data:
+            return f"未找到{city}这个城市,请检查名称是否正确"
+
+        lat = geo_data["results"][0]["latitude"]
+        lon = geo_data["results"][0]["longitude"]
+
+        weather_response = requests.get(f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m")
+        weather_data = weather_response.json()
+        temp = weather_data["current"]["temperature_2m"]
+
         return f"{city}当前气温是{temp}度"
 
     文案助手 = Agent(
