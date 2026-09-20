@@ -35,4 +35,4 @@ if st.button("生成提醒文案"):
     crew = Crew(agents=[文案助手], tasks=[写文案任务])
     result = crew.kickoff()
 
-    st.write(result)
+    st.write(result.raw)
