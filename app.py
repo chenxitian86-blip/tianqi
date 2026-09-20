@@ -2,11 +2,18 @@ import streamlit as st
 from crewai import Agent, Task, Crew, LLM
 from crewai.tools import tool
 import requests
+from datetime import datetime
 
 st.set_page_config(page_title="天气提醒小助手", page_icon="🌤️", layout="centered")
 
 st.title("🌤️ 天气提醒小助手")
-st.caption("输入城市名称,AI帮你生成贴心的天气提醒文案")
+st.caption("输入城市名称,AI帮你生成贴心的天气提醒、今日建议和暖心话")
+
+weekday_names = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"]
+today = datetime.now()
+today_str = f"{today.year}年{today.month}月{today.day}日 {weekday_names[today.weekday()]}"
+
+st.write(f"📅 今天是 {today_str}")
 
 city_input = st.text_input("城市名称", "上海", placeholder="例如:上海、北京、广州")
 
@@ -37,15 +44,15 @@ if st.button("✨ 生成提醒文案", type="primary"):
 
             文案助手 = Agent(
                 role="生活提醒文案专家",
-                goal="根据实时天气数据,写出一段贴心的穿衣/出行提醒文案",
-                backstory="你是一名擅长根据天气情况给出生活建议的文案撰写人",
+                goal="根据实时天气数据和日期,写出贴心的天气提醒、今日活动建议和暖心话语",
+                backstory="你是一名擅长根据天气和日期给出生活建议、并且很会说暖心话的文案撰写人",
                 llm=llm,
                 tools=[get_weather]
             )
 
             写文案任务 = Task(
-                description=f"查询{city_input}当前的天气,写一段50字左右的提醒文案",
-                expected_output="一段50字左右的中文生活提醒文案",
+                description=f"今天是{today_str}。查询{city_input}当前的天气,然后完成三件事:1.用一段50字左右的话描述天气并给出穿衣建议;2.结合今天是工作日还是周末以及天气情况,推荐一个适合今天做的活动(一句话);3.写一句温暖治愈的话送给用户(一句话,不要老套的鸡汤)。",
+                expected_output="按以下格式输出:\n【天气提醒】...\n【今日建议】...\n【暖心一句】...",
                 agent=文案助手
             )
 
@@ -53,5 +60,5 @@ if st.button("✨ 生成提醒文案", type="primary"):
             result = crew.kickoff()
 
         st.success("生成完成!")
-        st.markdown(f"### 📋 {city_input}的天气提醒")
+        st.markdown(f"### 📋 {city_input}的今日速递")
         st.info(result.raw)
